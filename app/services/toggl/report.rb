@@ -6,10 +6,10 @@ module Toggl
 
     base_uri 'https://toggl.com/reports/api/v2'
 
-    def initialize(token:, workspace_id:, user_agent:)
-      @token = token
-      @workspace_id = workspace_id
-      @user_agent = user_agent
+    def initialize
+      @token = ENV['TOGGL_TOKEN']
+      @workspace_id = ENV['TOGGL_WORKSPACE_ID']
+      @user_agent = ENV['TOGGL_USER_AGENT']
     end
 
     def fetch(since: Time.now.beginning_of_week(:saturday))

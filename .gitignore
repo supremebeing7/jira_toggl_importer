@@ -12,3 +12,4 @@
 !/log/.keep
 /tmp
 **/.DS_Store
+/config/initializers/00_private_envars.rb

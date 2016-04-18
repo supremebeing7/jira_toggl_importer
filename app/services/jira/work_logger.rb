@@ -2,14 +2,15 @@ module JIRA
   class WorkLogger
     include HTTParty
 
-    attr_accessor :username, :password, :time_entries
+    attr_accessor :username, :password, :time_entries, :log_tags
 
     base_uri 'https://hranswerlink.atlassian.net/rest/api/2'
 
-    def initialize(username:, password:, time_entries:)
-      @username = username
-      @password = password
+    def initialize(time_entries:, log_tags: [ENV['DEFAULT_LOG_TAG']])
+      @username = ENV['JIRA_USERNAME']
+      @password = ENV['JIRA_PASSWORD']
       @time_entries = time_entries
+      @log_tags = log_tags
     end
 
     def log_all
@@ -21,7 +22,7 @@ module JIRA
     private
 
     def is_logged?(entry)
-      entry['tags'].include?('logged')
+      (log_tags - entry['tags']).size < log_tags.size
     end
 
     def log(entry)
@@ -35,6 +36,7 @@ module JIRA
       if response.success?
         p "Success"
         p '*' * 20
+        set_entry_as_logged(entry)
       else
         p "Failed! Response form JIRA:"
         pp response
@@ -44,7 +46,7 @@ module JIRA
     end
 
     def set_entry_as_logged(entry)
-      # @TODO update each Toggl entry with a tag "logged"
+      Toggl::Tagger.new(tags: log_tags).update(entry_id: entry['id'])
     end
 
     def auth
@@ -54,6 +56,7 @@ module JIRA
       }
     end
 
+    # @TODO Extract since it's used in several different models
     def headers
       { 'Content-Type' => 'application/json' }
     end
