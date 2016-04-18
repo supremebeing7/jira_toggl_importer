@@ -13,7 +13,7 @@ module JIRA
         "comment" => comment,
         "started" => start.to_s,
         "timeSpentSeconds" => duration_in_seconds
-      }
+      }.to_json
     end
   end
 end

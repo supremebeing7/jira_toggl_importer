@@ -14,21 +14,31 @@ module JIRA
 
     def log_all
       time_entries.each do |entry|
-        log(entry)
+        log(entry) unless is_logged?(entry)
       end
     end
 
     private
 
+    def is_logged?(entry)
+      entry['tags'].include?('logged')
+    end
+
     def log(entry)
-binding.pry
       issue_key = parse_issue_key(entry)
       payload = build_payload(entry)
-      # @TODO fix this - still doesn't connect properly -- getting this error:
-      # {"errorMessages"=>
-      # ["Unexpected character ('c' (code 115)): expected a valid value (number, String, array, object, 'true', 'false' or 'null')\n at [Source: org.apache.catalina.connector.CoyoteInputStream@11d429d; line: 1, column: 2]"]}
-      # The 'c' is from 'comment' in the payload
-      self.class.post("/issue/#{issue_key}/worklog", basic_auth: auth, headers: headers, body: payload)
+      p "Logging #{human_readable_duration(parse_duration(entry))}"
+      p "starting on #{parse_start(entry)}"
+      p "to #{parse_issue_key(entry)}"
+      p "with comment #{parse_comment(entry)}" unless parse_comment(entry).nil?
+      response = self.class.post("/issue/#{issue_key}/worklog", basic_auth: auth, headers: headers, body: payload)
+      if response.success?
+        p "Success"
+        # @TODO update each Toggl entry with a tag "logged"
+      else
+        p "Failed"
+        # @TODO Tell me why it failed
+      end
     end
 
     def auth
@@ -44,10 +54,25 @@ binding.pry
 
     def build_payload(entry)
       JIRA::PayloadBuilder.new(
-        start: entry['start'],
-        duration_in_seconds: entry['dur'],
-        comment: comment(entry)
+        start: parse_start(entry),
+        duration_in_seconds: parse_duration(entry),
+        comment: parse_comment(entry)
       ).build
+    end
+
+    def parse_start(entry)
+      DateTime.strptime(entry['start'], "%FT%T%:z").strftime("%FT%T.%L%z")
+    end
+
+    def parse_duration(entry)
+      entry['dur']/1000 # Toggl sends times in milliseconds
+    end
+
+    def human_readable_duration(seconds)
+      total_minutes = seconds/60
+      hours = total_minutes/60
+      remaining_minutes = total_minutes - hours * 60
+      "#{hours}h #{remaining_minutes}m"
     end
 
     # @TODO figure out how to capture both of this in one .match call with one set of regex
@@ -56,7 +81,7 @@ binding.pry
       matches['issue_key'] if matches.present?
     end
 
-    def comment(entry)
+    def parse_comment(entry)
       matches = entry['description'].match(/(\{(?<comment>[^\}]*)\})/)
       matches['comment'] if matches.present?
     end

@@ -12,7 +12,7 @@ module Toggl
       @user_agent = user_agent
     end
 
-    def fetch(since: Time.now.monday)
+    def fetch(since: Time.now.beginning_of_week(:saturday))
       self.class.get('/details', basic_auth: auth, query: query(since))
     end
 
