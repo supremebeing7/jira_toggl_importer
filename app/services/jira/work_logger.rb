@@ -34,11 +34,17 @@ module JIRA
       response = self.class.post("/issue/#{issue_key}/worklog", basic_auth: auth, headers: headers, body: payload)
       if response.success?
         p "Success"
-        # @TODO update each Toggl entry with a tag "logged"
+        p '*' * 20
       else
-        p "Failed"
-        # @TODO Tell me why it failed
+        p "Failed! Response form JIRA:"
+        pp response
+        p "(Hint: Did you forget to put the JIRA issue key in your Toggl entry?"
+        p '*' * 20
       end
+    end
+
+    def set_entry_as_logged(entry)
+      # @TODO update each Toggl entry with a tag "logged"
     end
 
     def auth
