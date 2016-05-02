@@ -78,7 +78,7 @@ module JIRA
     end
 
     def human_readable_duration(seconds)
-      total_minutes = seconds/60
+      total_minutes = (seconds + 30)/60
       hours = total_minutes/60
       remaining_minutes = total_minutes - hours * 60
       "#{hours}h #{remaining_minutes}m"
