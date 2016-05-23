@@ -1,8 +1,13 @@
+
+***This app is out of date. For the more current version, check out the [`time_log_robot` gem](https://github.com/supremebeing7/time_log_robot)***
+
+--
+
 # JIRA Toggl Importer
 
-### Use Toggl? Use JIRA? Tired of copying all of your Toggl time entries into JIRA work logs? This app is for you!
+#### Use Toggl? Use JIRA? Tired of copying all of your Toggl time entries into JIRA work logs? This app is for you!
 
-### This is a work in progress. There is currently no UI for this (nor tests - woo!), but it is working in the console.
+### #This is a work in progress. There is currently no UI for this (nor tests - woo!), but it is working in the console.
 
 #### To Use:
 
